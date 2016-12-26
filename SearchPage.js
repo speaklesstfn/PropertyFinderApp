@@ -54,6 +54,7 @@ export default class SearchPage extends Component {
                     <TextInput
                         style={styles.searchInput}
                         value={this.state.searchString}
+                        underlineColorAndroid={'#F5FCFF'}
                         placeholder={'Search via name or postcode'}
                         onChange={this.onSearchStringChanged.bind(this)}
                     />
@@ -68,6 +69,7 @@ export default class SearchPage extends Component {
                 <TouchableHighlight
                     style={styles.buttonLocation}
                     underlayColor={'#99d9f4'}
+                    onPress={this.onLocationPressed.bind(this)}
                 >
                     <Text style={styles.buttonText}>Location</Text>
                 </TouchableHighlight>
@@ -112,17 +114,33 @@ export default class SearchPage extends Component {
 
     _excuteQuery(query) {
         console.log('excuteQueryUrl:' + query);
-        this.setState({isLoading: true});
+        this.setState({isLoading: true, message: ''});
         fetch(query)
             .then(response => response.json())
             .then(json => this._handleResponse(json.response))
-        .catch(error => this.setState({isLoading: false, message: 'Something bad happened ' + error,}));
+            .catch(error => this.setState({isLoading: false, message: 'Something bad happened ' + error,}));
     }
 
     onSearchPressed() {
-        this.setState({message: ''});
         let query = urlForQueryAndPage('place_name', this.state.searchString, 1);
         this._excuteQuery(query);
+    }
+
+    onLocationPressed() {
+        navigator.geolocation.getCurrentPosition(
+            location => {
+                let search = location.coords.latitude + ',' + location.coords.longitude;
+                this.setState({searchString: search,});
+                let query = urlForQueryAndPage('centre_point', this.state.searchString, 1);
+                this._excuteQuery(query);
+            },
+            error => {
+                this.setState({
+                    isLoading: false,
+                    message: 'There was a problem with obtaining your location: ' + error
+                });
+            }
+        );
     }
 }
 

@@ -20,6 +20,8 @@ export default class SearchResults extends Component {
 
     componentDidMount() {
         let {navigator} = this.props;
+        let sdasdsa = this.props.aaaaa;
+        console.log('aaaaa:' + sdasdsa);
         BackAndroid.addEventListener('hardwareBackPress', function () {
             if (navigator && navigator.getCurrentRoutes().length > 1) {
                 navigator.pop();
